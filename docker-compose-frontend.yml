@@ -1,0 +1,11 @@
+version: "3"
+services:
+  nuster:
+    image: nuster/nuster
+    container_name: nuster
+    volumes:
+      - "./cache:/cache"
+      - "./nuster-aws.cfg:/etc/nuster/nuster.cfg:ro"
+    ports:
+      - "8080:8080"
+    restart: always

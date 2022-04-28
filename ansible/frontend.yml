@@ -1,0 +1,9 @@
+- name: run the playbook to setup
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+  roles:
+    - roles/common
+    - roles/swap
+    - roles/user
+    - roles/frontend

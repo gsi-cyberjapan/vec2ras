@@ -1,0 +1,84 @@
+# Install nuster
+- name: docker pull
+  command: /usr/local/bin/docker-compose -f docker-compose-frontend.yml pull
+  args:
+    chdir: /srv/app
+  become_user: appsrv
+  become: true
+- name: docker build
+  command: /usr/local/bin/docker-compose -f docker-compose-frontend.yml build
+  args:
+    chdir: /srv/app
+  become_user: appsrv
+  become: true
+- name: docker stop
+  command: /usr/local/bin/docker-compose -f docker-compose-frontend.yml stop
+  args:
+    chdir: /srv/app
+  become_user: appsrv
+  become: true
+- name: docker up
+  command: /usr/local/bin/docker-compose -f docker-compose-frontend.yml up -d
+  args:
+    chdir: /srv/app
+  become_user: appsrv
+  become: true
+# Let's encrypt
+- name: letsencrypt - installing dep packages
+  apt:
+    name:
+      - software-properties-common
+      - nginx
+      - libnginx-mod-http-subs-filter
+    state: latest
+    update_cache: yes
+- name: letsencrypt - installing packages
+  apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: latest
+    update_cache: yes
+- name: Check dhparam
+  stat:
+    path: /etc/nginx/dhparam.pem
+  register: dhparam
+- name: Security - create dhparam
+  command: "/usr/bin/openssl dhparam -out /etc/nginx/dhparam.pem 2048"
+  when: not dhparam.stat.exists
+- name: Check domain directories
+  stat:
+    path: /etc/letsencrypt/live/www.distributed-vector.net/fullchain.pem
+  register: existance
+- name: Create domain cert
+  shell: certbot certonly --nginx -m test@example.com --agree-tos -d www.distributed-vector.net
+  when: not existance.stat.exists
+- name: Auto update certbot
+  cron:
+    name: certbot
+    cron_file: certbot
+    user: root
+    special_time: daily
+    job: sh -c '/usr/bin/certbot renew && /usr/bin/systemctl restart nginx.service'
+# nginx setup
+- name: Copy snippet ssl
+  copy:
+    src: "snippet_ssl.conf"
+    dest: "/etc/nginx/snippets/ssl.conf"
+- name: Copy index.html
+  copy:
+    src: "index.html"
+    dest: "/usr/share/nginx/html/index.html"
+- name: Copy nginx setting
+  copy:
+    src: www.distributed-vector.net.conf
+    dest: /etc/nginx/sites-available/www.distributed-vector.net.conf
+- name: make symbolic link
+  file:
+    src: /etc/nginx/sites-available/www.distributed-vector.net.conf
+    dest: /etc/nginx/sites-enabled/www.distributed-vector.net.conf
+    state: link
+- name: restart nginx
+  systemd:
+    name: nginx
+    state: restarted

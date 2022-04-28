@@ -1,0 +1,18 @@
+- name: docker pull
+  command: /usr/local/bin/docker-compose -f docker-compose-backend.yml pull
+  args:
+    chdir: /srv/app
+  become_user: appsrv
+  become: true
+- name: docker build
+  command: /usr/local/bin/docker-compose -f docker-compose-backend.yml build
+  args:
+    chdir: /srv/app
+  become_user: appsrv
+  become: true
+- name: docker up
+  command: /usr/local/bin/docker-compose -f docker-compose-backend.yml up -d
+  args:
+    chdir: /srv/app
+  become_user: appsrv
+  become: true

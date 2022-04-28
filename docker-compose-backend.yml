@@ -1,0 +1,22 @@
+version: "3"
+services:
+  tile:
+    build:
+      context: ./vector-map-converter/
+      dockerfile: Dockerfile
+    container_name: tile
+    command: "node index.js"
+    environment:
+      - NODE_ENV=production
+      - CONCURRENCY=2
+    depends_on:
+      - "static"
+    ports:
+      - "3000:3000"
+    restart: always
+  static:
+    image: nginx:latest
+    container_name: static
+    volumes:
+      - "./gsi-sites:/usr/share/nginx/html"
+    restart: always

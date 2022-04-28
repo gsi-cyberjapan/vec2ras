@@ -1,0 +1,44 @@
+version: "3"
+services:
+  nuster:
+    image: nuster/nuster
+    container_name: nuster
+    volumes:
+      - "./cache:/cache"
+      - "./nuster.cfg:/etc/nuster/nuster.cfg:ro"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "tile1"
+      - "tile2"
+  tile1:
+    build:
+      context: ./vector-map-converter/
+      dockerfile: Dockerfile
+    container_name: tile1
+    command: "node index.js"
+    environment:
+      - NODE_ENV=production
+      - CONCURRENCY=2
+    depends_on:
+      - "static"
+    ports:
+      - "3000:3000"
+  tile2:
+    build:
+      context: ./vector-map-converter/
+      dockerfile: Dockerfile
+    container_name: tile2
+    command: "node index.js"
+    environment:
+      - NODE_ENV=production
+      - CONCURRENCY=2
+    depends_on:
+      - "static"
+    ports:
+      - "3001:3000"
+  static:
+    image: nginx:latest
+    container_name: static
+    volumes:
+      - "./gsi-sites:/usr/share/nginx/html"

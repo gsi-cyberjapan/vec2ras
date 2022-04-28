@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test site</title>
+    <style>
+      body, html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-hash@0.1.1/leaflet-hash.js"></script>
+    <script>
+      const gsi_attribution = "©国土地理院"
+      const std = L.tileLayer('http://localhost:8080/xyz/std/{z}/{x}/{y}{r}.png', {attribution: gsi_attribution})
+      const pale = L.tileLayer('http://localhost:8080/xyz/pale/{z}/{x}/{y}{r}.png', {attribution: gsi_attribution})
+      const blank = L.tileLayer('http://localhost:8080/xyz/blank/{z}/{x}/{y}{r}.png', {attribution: gsi_attribution})
+      const error = L.tileLayer('http://localhost:8080/xyz/error/{z}/{x}/{y}{r}.png', {attribution: gsi_attribution})
+      const map = L.map('map', {
+        center: [36.104611, 140.084556],
+        zoom: 5,
+        layers: [std]
+      })
+      const baseMaps = {
+        "標準": std,
+        "淡色": pale,
+        "blank": blank,
+        "error": error,
+      }
+      L.control.layers(baseMaps).addTo(map)
+      new L.Hash(map)
+    </script>
+  </body>
+</html>

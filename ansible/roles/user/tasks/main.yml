@@ -1,0 +1,55 @@
+# add user
+- name: Add appsrv user
+  user:
+    name: appsrv
+    shell: /bin/bash
+# install docker
+- name: install docker
+  apt:
+    name:
+      - docker.io
+    state: latest
+- name: Add to docker group
+  user:
+    name: appsrv
+    groups: docker
+    append: yes
+- name: Start docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+# install requirement for docker-compose install
+- name: Install basic list of packages
+  apt:
+    name:
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: yes
+  become: yes
+# install docker compose
+- name: Install docker-compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}"
+    dest: /usr/local/bin/docker-compose
+    mode: +x
+  become: yes
+# common directory
+- name: create common directory
+  file:
+    dest: /srv
+    state: directory
+    owner: appsrv
+- name: create common directory
+  file:
+    dest: /srv/app
+    state: directory
+    owner: appsrv
+# clone repos
+- name: git clone this repository
+  ansible.builtin.git:
+    repo: ''
+    dest: /srv/app
+  become_user: appsrv
+  become: true
