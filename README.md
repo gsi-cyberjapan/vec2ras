@@ -26,7 +26,7 @@ curl -X DELETE -H "regex: ^/xyz/std/5/28/.*\.png$" -H "mode: cache" http://local
 
 Rendering speed is very slow, per tile may take 10 sec.
 
-##Note: Deploy to AWS
+## Note: Deploy to AWS
 
 ### CDK
 
